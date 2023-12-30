@@ -412,5 +412,78 @@ void blur(int height, int width, RGBTRIPLE image[height][width])
 // Detect edges
 void edges(int height, int width, RGBTRIPLE image[height][width])
 {
+    // Assuming there is a 1 0x000000 pixel border aroudn the image
+    RGBTRIPLE tmp[height + 2][width + 2];
+
+    // Initialize tmp array with 0s
+    for(int i = 0; i < height + 2; i++)
+    {
+        for(int j = 0; j < width + 2; j++)
+        {
+            tmp[i][j].rgbtRed = 0;
+            tmp[i][j].rgbtGreen = 0;
+            tmp[i][j].rgbtBlue = 0;
+        }
+    }
+
+    for(int h = 0; h < height; h++)
+    {
+        for(int w = 0; w < width; w++)
+        {
+            tmp[h + 1][w + 1] = image[h][w];
+        }
+    }
+
+    const int gridX = 3;
+    const int gridY = 3;
+
+    int GxMatrix[3][3] = {{-1 ,0, 1},
+                          {-2, 0, 2},
+                          {-1, 0, 1}};
+
+    int GyMatrix[3][3] = {{-1, -2, -1},
+                          {0, 0 ,0},
+                          {1, 2, 1}};
+
+    for(int h = 0; h < height; h++)
+    {
+        for(int w = 0; w < width; w++)
+        {
+            int GxwSumR = 0, GxwSumG = 0, GxwSumB = 0;
+            int GywSumR = 0, GywSumG = 0, GywSumB = 0;
+            // 3x3 pixel grid.
+            RGBTRIPLE grid[3][3] = {{tmp[(h-1) + 1][(w-1) + 1], tmp[(h-1) + 1][(w) + 1], tmp[(h-1) + 1][(w+1) + 1]},
+                                    {tmp[(h) + 1][(w-1) + 1], tmp[(h) + 1][(w) + 1], tmp[(h) + 1][(w+1) + 1]},
+                                    {tmp[(h+1) + 1][(w-1) + 1], tmp[(h+1) + 1][(w) + 1], tmp[(h+1) + 1][(w+1) + 1]}};
+            // calculate the wSum of each color for Gx and Gy
+            for(int i = 0; i < gridX; i++)
+            {
+                for(int j = 0; j < gridY; j++)
+                {
+                    // Calc Gx
+                    GxwSumR += grid[i][j].rgbtRed * GxMatrix[i][j];
+                    GxwSumG += grid[i][j].rgbtGreen * GxMatrix[i][j];
+                    GxwSumB += grid[i][j].rgbtBlue * GxMatrix[i][j];
+
+                    // Calc Gy
+                    GywSumR += grid[i][j].rgbtRed * GyMatrix[i][j];
+                    GywSumG += grid[i][j].rgbtGreen * GyMatrix[i][j];
+                    GywSumB += grid[i][j].rgbtBlue * GyMatrix[i][j];
+                }
+            }
+
+            int redVector = round(sqrt(GxwSumR * GxwSumR + GywSumR * GywSumR));
+            int greenVector = round(sqrt(GxwSumG * GxwSumG + GywSumG * GywSumG));
+            int blueVector = round(sqrt(GxwSumB * GxwSumB + GywSumB * GywSumB));
+
+            redVector = (redVector > 255) ? 255 : redVector;
+            greenVector = (greenVector > 255) ? 255 : greenVector;
+            blueVector = (blueVector > 255) ? 255 : blueVector;
+
+            image[h][w].rgbtRed = redVector;
+            image[h][w].rgbtGreen = greenVector;
+            image[h][w].rgbtBlue = blueVector;
+        }
+    }
     return;
 }
