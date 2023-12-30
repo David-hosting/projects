@@ -1,0 +1,11 @@
+sort1 uses: Bubble
+
+How do you know?: Ω is Ω(n) while O(n^2) so there needs to be a diffrence when sorting reversed and sorted and there is doffrence when tested.
+
+sort2 uses: Merge
+
+How do you know?: According to my time chart that I made sort2 sorts the fastest by far when it gets to the big data files.
+
+sort3 uses: Selection
+
+How do you know?: Here Ω = O as they both are (n^2) so the timing for sorted and reversed should be the same, when checked, my assumption was confirmed.
